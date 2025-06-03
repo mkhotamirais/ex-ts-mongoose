@@ -1,0 +1,35 @@
+{
+  "name": "ex-ts-mongoose",
+  "version": "1.0.0",
+  "description": "- create new folder and open vs code\r - npm init -y\r - npm i -D typescript ts-node nodemon\r - npm i express cookie-parser compression cors mongoose\r - npm i -D @types/express @types/cookie-parser @types/compression @types/cors @types/mongoose\r - npx tsc --init\r {\r     \"compilerOptions\": {\r         \"forceConsistentCasingInFileNames\": true,\r         \"strict\": true,\r         \"module\": \"NodeNext\",\r         \"moduleResolution\": \"nodenext\",\r         \"baseUrl\": \"src\",\r         \"outDir\": \"dist\",\r         \"sourceMap\": true,\r         \"noImplicitAny\": true\r     },\r     \"include\": [\r         \"src/**/*\"\r     ]\r }\r - optional create: nodemon.json\r {\r     \"watch\": [\"src\"],\r     \"ext\": \".ts, .js\",\r     \"exec\": \"ts-node ./src/index.ts\"\r }\r - tambah pada file: package.json\r   \"scripts\": {\r     \"start\": \"nodemon\",\r   },\r - npm start",
+  "main": "index.js",
+  "scripts": {
+    "start": "nodemon",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@types/bcrypt": "^5.0.2",
+    "@types/cookie-parser": "^1.4.8",
+    "@types/cors": "^2.8.18",
+    "@types/express": "^5.0.2",
+    "@types/jsonwebtoken": "^9.0.9",
+    "@types/mongoose": "^5.11.96",
+    "@types/validator": "^13.15.1",
+    "nodemon": "^3.1.10",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.8.3"
+  },
+  "dependencies": {
+    "bcrypt": "^6.0.0",
+    "cookie-parser": "^1.4.7",
+    "cors": "^2.8.5",
+    "dotenv": "^16.5.0",
+    "express": "^5.1.0",
+    "jsonwebtoken": "^9.0.2",
+    "mongoose": "^8.15.0",
+    "validator": "^13.15.0"
+  }
+}
