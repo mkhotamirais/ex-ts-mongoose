@@ -56,7 +56,18 @@ export const isLogin = async (req: AuthRequest, res: Response, next: NextFunctio
   }
 };
 
-export const isAdmin = (req: Request, res: Response, next: NextFunction) => {
-  if ((req as any).user.role !== "admin") return res.status(403).json({ error: `admin only` });
-  next();
+export const authorizeRoles = (...allowedRoles: string[]) => {
+  return (req: AuthRequest, res: Response, next: NextFunction) => {
+    if (!req.user) {
+      res.status(401).json({ message: "Unauthorized: no user in request" });
+      return;
+    }
+
+    if (!allowedRoles.includes(req.user.role)) {
+      res.status(403).json({ message: `Access denied for role: ${req.user.role}` });
+      return;
+    }
+
+    next();
+  };
 };

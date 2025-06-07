@@ -1,20 +1,20 @@
 import { Request, Response } from "express";
-import { Productcats } from "./product.model";
+import { Postcats } from "./post.model";
 import { errMsg } from "../../helpers/functions";
 
-export const getProductcats = async (req: Request, res: Response) => {
+export const getPostcats = async (req: Request, res: Response) => {
   try {
-    const data = await Productcats.find().sort("-createdAt");
+    const data = await Postcats.find().sort("-createdAt");
     res.status(200).json(data);
   } catch (error) {
     errMsg(error, res);
   }
 };
 
-export const getProductcatById = async (req: Request, res: Response) => {
-  const { id } = req.params;
+export const getPostcatById = async (req: Request, res: Response) => {
   try {
-    const data = await Productcats.findById(id);
+    const { id } = req.params;
+    const data = await Postcats.findById(id);
     if (!data) {
       res.status(400).json({ error: `Category id ${id} not found!` });
       return;
@@ -25,14 +25,14 @@ export const getProductcatById = async (req: Request, res: Response) => {
   }
 };
 
-export const createProductcat = async (req: Request, res: Response) => {
+export const createPostcat = async (req: Request, res: Response) => {
   try {
     const { name } = req.body;
     let errors: Record<string, string | null> | null = { name: null };
     let status = 400;
 
     if (!name || name === "") errors = { ...errors, name: "Name is required!" };
-    if (await Productcats.findOne({ name })) {
+    if (await Postcats.findOne({ name })) {
       errors = { ...errors, name: "Duplicate name!" };
       status = 409;
     }
@@ -43,14 +43,14 @@ export const createProductcat = async (req: Request, res: Response) => {
       return;
     }
 
-    await Productcats.create(req.body);
+    await Postcats.create(req.body);
     res.status(200).json({ message: `Create ${name} success` });
   } catch (error) {
     errMsg(error, res);
   }
 };
 
-export const updateProductcat = async (req: Request, res: Response) => {
+export const updatePostcat = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
     const { name } = req.body;
@@ -59,7 +59,7 @@ export const updateProductcat = async (req: Request, res: Response) => {
     let status = 400;
 
     if (!name || name === "") errors = { ...errors, name: "Name is required!" };
-    const dupName = await Productcats.findOne({ name });
+    const dupName = await Postcats.findOne({ name });
     if (dupName && dupName._id.toString() !== id) {
       errors = { ...errors, name: `${name} is already exist` };
       status = 409;
@@ -71,28 +71,28 @@ export const updateProductcat = async (req: Request, res: Response) => {
       return;
     }
 
-    const match = await Productcats.findById(id);
+    const match = await Postcats.findById(id);
     if (!match) {
       res.status(400).json({ error: `Category id ${id} not found!` });
       return;
     }
 
-    await Productcats.findByIdAndUpdate(match._id, req.body, { new: true });
+    await Postcats.findByIdAndUpdate(match._id, req.body, { new: true });
     res.status(200).json({ message: `Update ${name} success` });
   } catch (error) {
     errMsg(error, res);
   }
 };
 
-export const deleteProductcat = async (req: Request, res: Response) => {
+export const deletePostcat = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
-    const data = await Productcats.findById(id);
+    const data = await Postcats.findById(id);
     if (!data) {
       res.json(400).json({ error: `Category id ${id} not found!` });
       return;
     }
-    await Productcats.findByIdAndDelete(id);
+    await Postcats.findByIdAndDelete(id);
     res.status(200).json({ message: `Delete ${data.name} success` });
   } catch (error) {
     errMsg(error, res);

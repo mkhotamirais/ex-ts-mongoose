@@ -1,0 +1,6 @@
+{
+  "posts": [
+    { "id": "1", "title": "judul1", "content": "konten1" },
+    { "id": "2", "title": "judul2", "content": "konten2" }
+  ]
+}

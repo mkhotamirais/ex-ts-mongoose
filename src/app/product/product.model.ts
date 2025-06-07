@@ -15,10 +15,10 @@ const productSchema = new mongoose.Schema(
   {
     name: { type: String, requried: true, unique: true },
     price: { type: Number, required: true },
-    tag: [{ type: mongoose.Schema.Types.ObjectId, ref: "productTags", required: true }],
+    tags: [{ type: mongoose.Schema.Types.ObjectId, ref: "productTags", required: true }],
     category: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "productCategory",
+      ref: "productCats",
       required: true,
     },
     description: { type: String },

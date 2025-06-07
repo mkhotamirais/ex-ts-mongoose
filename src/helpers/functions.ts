@@ -6,6 +6,13 @@ import { Users } from "../app/auth/auth.model";
 const ats = process.env.ACCESS_TOKEN_SECRET as string;
 const isProduction = process.env.NODE_ENV === "production";
 
+export const errMsg = (error: any, res: Response) => {
+  if (error instanceof Error) {
+    console.log(error);
+    res.status(400).json({ error: error.message });
+  }
+};
+
 export const saveCookie = async (res: Response, user: IUser) => {
   const accessToken = jwt.sign({ id: user._id, name: user.name, role: user.role }, ats, { expiresIn: "3d" });
   res.cookie("token-ex-ts-mongoose", accessToken, {
