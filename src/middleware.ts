@@ -56,15 +56,15 @@ export const isLogin = async (req: AuthRequest, res: Response, next: NextFunctio
   }
 };
 
-export const authorizeRoles = (...allowedRoles: string[]) => {
+export const authorizeRoles = (...allowedRoles: ("admin" | "user" | "editor")[]) => {
   return (req: AuthRequest, res: Response, next: NextFunction) => {
     if (!req.user) {
-      res.status(401).json({ message: "Unauthorized: no user in request" });
+      res.status(401).json({ error: "Unauthorized: no user in request" });
       return;
     }
 
     if (!allowedRoles.includes(req.user.role)) {
-      res.status(403).json({ message: `Access denied for role: ${req.user.role}` });
+      res.status(403).json({ error: `Access denied for role: ${req.user.role}` });
       return;
     }
 

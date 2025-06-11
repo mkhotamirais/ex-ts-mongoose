@@ -4,7 +4,7 @@ import { Users } from "./auth.model";
 
 export const getUsers = async (req: Request, res: Response) => {
   try {
-    const data = await Users.find().select(["-password", "-__v"]);
+    const data = await Users.find().select(["-password", "-accessToken", "-__v"]);
     res.status(200).json(data);
   } catch (error) {
     if (error instanceof Error) {
@@ -17,7 +17,7 @@ export const getUsers = async (req: Request, res: Response) => {
 export const getUserById = async (req: Request, res: Response) => {
   const { id } = req.params;
   try {
-    const data = await Users.findById(id).select(["-password", "-__v"]);
+    const data = await Users.findById(id).select(["-password", "-accessToken", "-__v"]);
     res.status(200).json(data);
   } catch (error) {
     if (error instanceof Error) {
