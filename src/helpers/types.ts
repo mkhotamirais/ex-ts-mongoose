@@ -26,6 +26,6 @@ export type ProductType = {
   limit?: number;
   q?: string;
   category?: string;
-  tags?: string[];
+  tags?: string | string[];
   sort?: string;
 };

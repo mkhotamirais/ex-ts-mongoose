@@ -8,13 +8,13 @@ import upload from "../helpers/multer";
 
 const router = express.Router();
 
-router.post("/product", createProduct);
+router.post("/product", upload, createProduct);
 router.post("/productcat", createProductcat);
 router.post("/producttag", createProducttag);
 router.post("/post", upload, createPost);
 router.post("/postcat", createPostcat);
 
-router.route("/product/:id").patch(updateProduct).delete(deleteProduct);
+router.route("/product/:id").patch(upload, updateProduct).delete(deleteProduct);
 router.route("/productcat/:id").patch(updateProductcat).delete(deleteProductcat);
 router.route("/producttag/:id").patch(updateProducttag).delete(deleteProducttag);
 router.route("/post/:id").patch(upload, updatePost).delete(deletePost);

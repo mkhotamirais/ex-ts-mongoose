@@ -19,9 +19,11 @@ const productSchema = new mongoose.Schema(
     category: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "productCats",
-      required: true,
+      default: null,
     },
     description: { type: String },
+    imageUrl: { type: String },
+    cldId: { type: String },
     user: { type: mongoose.Schema.Types.ObjectId, ref: "users" },
   },
   {
