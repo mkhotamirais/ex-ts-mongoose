@@ -39,7 +39,7 @@ export const isLogin = async (req: AuthRequest, res: Response, next: NextFunctio
       return;
     }
 
-    const user = await Users.findById(decoded.id).select(["-__v", "-password"]);
+    const user = await Users.findById(decoded.id).select(["-__v", "-password", "-accessToken"]);
 
     if (!user) {
       res.status(404).json({ error: `user not found` });

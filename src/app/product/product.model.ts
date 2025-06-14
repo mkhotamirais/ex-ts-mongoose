@@ -31,6 +31,60 @@ const productSchema = new mongoose.Schema(
   }
 );
 
+const cartItemSchema = new mongoose.Schema({
+  productId: { type: mongoose.Schema.Types.ObjectId, ref: "products", required: true },
+  qty: { type: Number, required: true },
+});
+
+const cartSchema = new mongoose.Schema(
+  {
+    userId: { type: mongoose.Schema.Types.ObjectId, ref: "users", required: true },
+    items: [cartItemSchema],
+  },
+  {
+    timestamps: true,
+  }
+);
+
+interface OrderItem {
+  productId: mongoose.Types.ObjectId;
+  qty: number;
+  price: number;
+}
+
+export interface OrderDocument extends Document {
+  userId: mongoose.Schema.Types.ObjectId;
+  items: OrderItem[];
+  // address: string;
+  // paymentMethod: string;
+  total: number;
+  status: "pending" | "paid" | "shipped" | "cancelled";
+  createdAt: Date;
+}
+
+const orderSchema = new mongoose.Schema<OrderDocument>({
+  userId: { type: mongoose.Schema.Types.ObjectId, ref: "users", required: true },
+  items: [
+    {
+      productId: { type: mongoose.Schema.Types.ObjectId, ref: "products", required: true },
+      qty: { type: Number, required: true },
+      price: { type: Number, required: true },
+    },
+  ],
+  // address: { type: String, required: true },
+  // paymentMethod: { type: String, required: true },
+  total: { type: Number, required: true },
+  status: {
+    type: String,
+    enum: ["pending", "paid", "shipped", "cancelled"],
+    default: "pending",
+  },
+  createdAt: { type: Date, default: Date.now },
+});
+
 export const Producttags = mongoose.model("productTags", producttagSchema);
 export const Productcats = mongoose.model("productCats", productcatSchema);
-export const Products = mongoose.model("Products", productSchema);
+export const Products = mongoose.model("products", productSchema);
+export const Carts = mongoose.model("carts", cartSchema);
+export const Orders = mongoose.model("orders", orderSchema);
+// export const Orders = mongoose.model<OrderDocument>("Order", orderSchema);
