@@ -78,7 +78,8 @@ export const deleteCartItem = async (req: AuthRequest, res: Response) => {
     cart.items.pull({ _id: itemId });
     await cart.save();
 
-    res.status(200).json({ message: "Item berhasil dihapus" });
+    const data = await Carts.findOne({ userId }).populate({ path: "items.productId" });
+    res.status(200).json(data);
   } catch (error) {
     errMsg(error, res);
   }

@@ -1,12 +1,19 @@
 import mongoose from "mongoose";
 
 const addressSchema = new mongoose.Schema({
-  label: { type: String }, // opsional, misal "Rumah", "Kantor"
+  label: { type: String, default: "Rumah" },
   isDefault: { type: Boolean, default: false },
 
+  provinceId: { type: String, required: true },
+  regencyId: { type: String, required: true },
+  districtId: { type: String, required: true },
+  villageId: { type: String, required: true },
+
   province: { type: String, required: true },
-  city: { type: String, required: true },
+  regency: { type: String, required: true },
   district: { type: String, required: true },
+  village: { type: String, required: true },
+
   postalCode: { type: String, required: true },
   fullAddress: { type: String, required: true },
 });

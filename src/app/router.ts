@@ -9,12 +9,12 @@ import { authorizeRoles, isLogin } from "../middleware";
 
 const router = express.Router();
 
-router.use(routerPublic);
-router.use(routerSearch);
+router.use("/public", routerPublic);
+router.use("/search", routerSearch);
 router.use(isLogin);
-router.use(authorizeRoles("user"), routerUser);
-router.use(authorizeRoles("user", "editor", "admin"), routerAllrole);
-router.use(authorizeRoles("editor", "admin"), routerEditor);
-router.use(authorizeRoles("admin"), routerAdmin);
+router.use("/user", authorizeRoles("user"), routerUser);
+router.use("/common", authorizeRoles("user", "editor", "admin"), routerAllrole);
+router.use("/editor", authorizeRoles("editor", "admin"), routerEditor);
+router.use("/admin", authorizeRoles("admin"), routerAdmin);
 
 export default router;
