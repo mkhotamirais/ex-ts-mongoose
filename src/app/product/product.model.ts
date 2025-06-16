@@ -52,10 +52,21 @@ interface OrderItem {
   price: number;
 }
 
+interface Address {
+  label: string;
+  province: string;
+  regency: string;
+  district: string;
+  village: string;
+  postalCode: string;
+  fullAddress: string;
+  isDefault?: boolean;
+}
+
 export interface OrderDocument extends Document {
   userId: mongoose.Schema.Types.ObjectId;
   items: OrderItem[];
-  // address: string;
+  address: Address;
   // paymentMethod: string;
   total: number;
   status: "pending" | "paid" | "shipped" | "cancelled";
@@ -71,7 +82,16 @@ const orderSchema = new mongoose.Schema<OrderDocument>({
       price: { type: Number, required: true },
     },
   ],
-  // address: { type: String, required: true },
+  address: {
+    label: { type: String, required: true },
+    province: { type: String, required: true },
+    regency: { type: String, required: true },
+    district: { type: String, required: true },
+    village: { type: String, required: true },
+    postalCode: { type: String, required: true },
+    fullAddress: { type: String, required: true },
+    isDefault: { type: Boolean, default: false },
+  },
   // paymentMethod: { type: String, required: true },
   total: { type: Number, required: true },
   status: {
@@ -87,4 +107,3 @@ export const Productcats = mongoose.model("productCats", productcatSchema);
 export const Products = mongoose.model("products", productSchema);
 export const Carts = mongoose.model("carts", cartSchema);
 export const Orders = mongoose.model("orders", orderSchema);
-// export const Orders = mongoose.model<OrderDocument>("Order", orderSchema);

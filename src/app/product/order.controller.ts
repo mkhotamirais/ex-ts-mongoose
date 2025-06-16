@@ -12,19 +12,32 @@ export const getOrders = async (req: AuthRequest, res: Response) => {
   }
 };
 
+export const getOrderById = async (req: AuthRequest, res: Response) => {
+  const { id } = req.params;
+  try {
+    const order = await Orders.findById(id).populate({ path: "items.productId" });
+    res.status(200).json(order);
+  } catch (error) {
+    errMsg(error, res);
+  }
+};
+
 export const createOrder = async (req: AuthRequest, res: Response) => {
-  // const { userId, selectedProductIds, address, paymentMethod } = req.body;
-  const { selectedProductIds } = req.body;
+  const { selectedProductIds, address } = req.body;
   const userId = req.user?._id;
 
   try {
+    if (!address || !address.fullAddress) {
+      res.status(400).json({ message: "Alamat pengiriman diperlukan" });
+      return;
+    }
+
     const cart = await Carts.findOne({ userId });
     if (!cart || cart.items.length === 0) {
       res.status(400).json({ message: "Keranjang kosong" });
       return;
     }
 
-    // Filter item yang dipilih
     const selectedItems = cart.items.filter((item) => selectedProductIds.includes(item.productId.toString()));
 
     if (selectedItems.length === 0) {
@@ -32,7 +45,6 @@ export const createOrder = async (req: AuthRequest, res: Response) => {
       return;
     }
 
-    // Ambil semua product sekaligus
     const productIds = selectedItems.map((item) => item.productId);
     const products = await Products.find({ _id: { $in: productIds } });
 
@@ -40,24 +52,16 @@ export const createOrder = async (req: AuthRequest, res: Response) => {
     const productMap = new Map(products.map((product) => [product._id.toString(), product.price]));
 
     let total = 0;
-    for (const item of selectedItems) {
-      const product = await Products.findById(item.productId);
-      if (!product) {
-        res.status(404).json({ message: "Produk tidak ditemukan" });
-        return;
-      }
-      total += product.price * item.qty;
-    }
+    const items = selectedItems.map((item) => {
+      const price = productMap.get(item.productId.toString()) ?? 0;
+      total += price * item.qty;
+      return { productId: item.productId, qty: item.qty, price };
+    });
 
-    // Buat order baru
     const order = new Orders({
       userId,
-      items: selectedItems.map((item) => ({
-        productId: item.productId,
-        qty: item.qty,
-        price: productMap.get(item.productId.toString()),
-      })),
-      // address,
+      items,
+      address,
       // paymentMethod,
       total,
       status: "pending",
@@ -65,7 +69,6 @@ export const createOrder = async (req: AuthRequest, res: Response) => {
 
     await order.save();
 
-    // cart.items = cart.items.filter((item) => !selectedProductIds.includes(item.productId.toString()));
     cart.set(
       "items",
       cart.items.filter((item) => !selectedProductIds.includes(item.productId.toString()))
