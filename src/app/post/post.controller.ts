@@ -3,11 +3,16 @@ import { errMsg } from "../../helpers/functions";
 import { Posts } from "./post.model";
 import cloudinary from "../../helpers/cloudinary";
 import { unlinkSync } from "fs";
-import { AuthRequest } from "helpers/types";
+import { AuthRequest, PostQuery } from "../../helpers/types";
 
 export const getPosts = async (req: Request, res: Response) => {
   try {
-    const data = await Posts.find().populate({ path: "category", select: "name" }).sort("-createdAt");
+    const { q = "" }: PostQuery = req.query;
+    let criteria: Record<string, any> = {};
+
+    if (q.length) criteria = { ...criteria, title: { $regex: `${q}`, $options: "i" } };
+
+    const data = await Posts.find(criteria).populate({ path: "category", select: "name" }).sort("-createdAt");
     res.status(200).json(data);
   } catch (error) {
     errMsg(error, res);

@@ -29,3 +29,7 @@ export type ProductType = {
   tags?: string | string[];
   sort?: string;
 };
+
+export type PostQuery = {
+  q?: string;
+};
