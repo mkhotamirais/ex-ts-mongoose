@@ -4,7 +4,7 @@ import { errMsg } from "../../helpers/functions";
 
 export const getPostcats = async (req: Request, res: Response) => {
   try {
-    const data = await Postcats.find().sort("-createdAt");
+    const data = await Postcats.find().sort("-createdAt").lean();
     res.status(200).json(data);
   } catch (error) {
     errMsg(error, res);

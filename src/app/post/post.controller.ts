@@ -12,7 +12,7 @@ export const getPosts = async (req: Request, res: Response) => {
 
     if (q.length) criteria = { ...criteria, title: { $regex: `${q}`, $options: "i" } };
 
-    const data = await Posts.find(criteria).populate({ path: "category", select: "name" }).sort("-createdAt");
+    const data = await Posts.find(criteria).populate({ path: "category", select: "name" }).sort("-createdAt").lean();
     res.status(200).json(data);
   } catch (error) {
     errMsg(error, res);
