@@ -33,7 +33,8 @@ export const getProducts = async (req: Request, res: Response) => {
       .populate({ path: "category", select: "name" })
       .populate({ path: "tags", select: ["name"] })
       .populate({ path: "user", select: ["username"] })
-      .select("-__v");
+      .select("-__v")
+      .lean();
     res.status(200).json(data);
   } catch (error) {
     errMsg(error, res);

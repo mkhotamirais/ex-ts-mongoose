@@ -13,7 +13,7 @@ export const getCarts = async (req: AuthRequest, res: Response) => {
       return;
     }
 
-    const cart = await Carts.findOne({ userId }).populate({ path: "items.productId" });
+    const cart = await Carts.findOne({ userId }).populate({ path: "items.productId" }).lean();
     if (!cart) {
       res.status(404).json({ message: "Cart not found" });
       return;

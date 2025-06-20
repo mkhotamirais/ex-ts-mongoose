@@ -5,7 +5,7 @@ import { errMsg } from "../../helpers/functions";
 
 export const getOrders = async (req: AuthRequest, res: Response) => {
   try {
-    const orders = await Orders.find({ userId: req.user?._id }).populate({ path: "items.productId" });
+    const orders = await Orders.find({ userId: req.user?._id }).populate({ path: "items.productId" }).lean();
     res.status(200).json(orders);
   } catch (error) {
     errMsg(error, res);
