@@ -81,8 +81,8 @@ export const createProduct = async (req: AuthRequest, res: Response) => {
     if (!description || description === "") errors = { ...errors, description: "Description is required!" };
 
     if (req.file) {
-      if (req.file.size > 1000000) {
-        errors = { ...errors, image: "Image size must be less than 1MB!" };
+      if (req.file.size > 2000000) {
+        errors = { ...errors, image: "Image size must be less than 2MB!" };
         status = 400;
       } else {
         const uploadResult = await cloudinary.uploader.upload(req.file.path, {
@@ -107,7 +107,7 @@ export const createProduct = async (req: AuthRequest, res: Response) => {
       return;
     }
 
-    req.body.user = req.user?.id;
+    req.body.user = req.user?._id;
     await Products.create(req.body);
     res.status(201).json({ message: `Post ${name} success` });
   } catch (error) {

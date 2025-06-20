@@ -76,7 +76,7 @@ export const createPost = async (req: AuthRequest, res: Response) => {
       return;
     }
 
-    req.body.user = req.user?.id;
+    req.body.user = req.user?._id;
     await Posts.create(req.body);
     res.status(200).json({ message: `Create ${title} success` });
   } catch (error) {
@@ -94,7 +94,7 @@ export const updatePost = async (req: AuthRequest, res: Response) => {
     }
 
     const { title, content, category } = req.body;
-    req.body.user = req.user?.id;
+    req.body.user = req.user?._id;
     let errors: Record<string, string | null> | null = { title: null, content: null, category: null };
     let status = 400;
 
