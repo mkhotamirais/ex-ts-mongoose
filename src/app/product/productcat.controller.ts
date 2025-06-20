@@ -14,7 +14,7 @@ export const getProductcats = async (req: Request, res: Response) => {
 export const getProductcatById = async (req: Request, res: Response) => {
   const { id } = req.params;
   try {
-    const data = await Productcats.findById(id);
+    const data = await Productcats.findById(id).lean();
     if (!data) {
       res.status(400).json({ error: `Category id ${id} not found!` });
       return;

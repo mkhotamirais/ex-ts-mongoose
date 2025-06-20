@@ -14,7 +14,7 @@ export const getProducttags = async (req: Request, res: Response) => {
 export const getProducttagById = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
-    const data = await Producttags.findById(id);
+    const data = await Producttags.findById(id).lean();
     if (!data) {
       res.status(400).json({ error: `Tag id ${id} not found!` });
       return;

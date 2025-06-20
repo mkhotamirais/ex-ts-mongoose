@@ -47,7 +47,8 @@ export const getProductById = async (req: Request, res: Response) => {
     const data = await Products.findById(id)
       .populate({ path: "category", select: ["name"] })
       .populate({ path: "tags", select: ["name"] })
-      .populate({ path: "user", select: ["username"] });
+      .populate({ path: "user", select: ["username"] })
+      .lean();
     if (!data) {
       res.status(404).json({ error: `Data ${id} not found!` });
       return;

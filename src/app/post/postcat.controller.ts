@@ -14,7 +14,7 @@ export const getPostcats = async (req: Request, res: Response) => {
 export const getPostcatById = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
-    const data = await Postcats.findById(id);
+    const data = await Postcats.findById(id).lean();
     if (!data) {
       res.status(400).json({ error: `Category id ${id} not found!` });
       return;
