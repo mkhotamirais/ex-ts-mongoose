@@ -32,5 +32,7 @@ export type ProductType = {
 };
 
 export type PostQuery = {
+  skip?: number;
+  limit?: number;
   q?: string;
 };

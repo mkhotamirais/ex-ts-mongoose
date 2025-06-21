@@ -7,12 +7,18 @@ import { AuthRequest, PostQuery } from "../../helpers/types";
 
 export const getPosts = async (req: Request, res: Response) => {
   try {
-    const { q = "" }: PostQuery = req.query;
+    const { skip = 0, limit = 0, q = "" }: PostQuery = req.query;
     let criteria: Record<string, any> = {};
 
     if (q.length) criteria = { ...criteria, title: { $regex: `${q}`, $options: "i" } };
 
-    const data = await Posts.find(criteria).populate({ path: "category", select: "name" }).sort("-createdAt").lean();
+    const data = await Posts.find(criteria)
+      .skip(skip)
+      .limit(limit)
+      .populate({ path: "category", select: "name" })
+      .sort("-createdAt")
+      .lean();
+
     res.status(200).json(data);
   } catch (error) {
     errMsg(error, res);
