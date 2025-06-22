@@ -1,41 +1,42 @@
-import { AuthRequest, ProductType } from "../../helpers/types";
+import { AuthRequest, ProductQuery } from "../../helpers/types";
 import { Request, Response } from "express";
-import { Products } from "./product.model";
+import { Carts, Products } from "./product.model";
 import cloudinary from "../../helpers/cloudinary";
 import { errMsg } from "../../helpers/functions";
 import { unlinkSync } from "fs";
 
 export const getProducts = async (req: Request, res: Response) => {
   const {
-    skip = 0,
-    limit = 0,
-    q = "",
-    category = "",
-    tags: rawTags = [],
-    sort = "-createdAt",
-  }: ProductType = req.query;
+    productskip = 0,
+    productlimit = 0,
+    productq = "",
+    productcategory = "",
+    producttags: rawTags = [],
+    productsort = "-createdAt",
+  }: ProductQuery = req.query;
   let criteria: Record<string, any> = {};
 
   const tags = typeof rawTags === "string" ? rawTags.split(",") : Array.isArray(rawTags) ? rawTags : [];
 
-  if (q.length) criteria = { ...criteria, name: { $regex: `${q}`, $options: "i" } };
-  if (category.length) criteria = { ...criteria, category };
+  if (productq.length) criteria = { ...criteria, name: { $regex: `${productq}`, $options: "i" } };
+  if (productcategory.length) criteria = { ...criteria, category: productcategory };
   if (tags.length) criteria = { ...criteria, tags: { $in: tags } };
   try {
     // const options = { sort: [["group.name", "asc"]] };
-    const count = await Products.countDocuments(criteria);
+    const total = await Products.countDocuments(criteria);
     const data = await Products.find(criteria)
       // .skip(parseInt(skip))
       // .limit(parseInt(limit))
-      .skip(skip)
-      .limit(limit)
-      .sort(sort)
+      .skip(productskip)
+      .limit(productlimit)
+      .sort(productsort)
       .populate({ path: "category", select: "name" })
       .populate({ path: "tags", select: ["name"] })
       .populate({ path: "user", select: ["username"] })
       .select("-__v")
       .lean();
-    res.status(200).json(data);
+
+    res.status(200).json({ products: data, total });
   } catch (error) {
     errMsg(error, res);
   }
@@ -200,6 +201,9 @@ export const deleteProduct = async (req: Request, res: Response) => {
     if (data?.cldId) {
       await cloudinary.uploader.destroy(data.cldId as string);
     }
+
+    // Hapus produk dari semua cart
+    await Carts.updateMany({}, { $pull: { items: { productId: id } } });
 
     await Products.findByIdAndDelete(id);
     res.status(200).json({ message: `Delete ${data.name} success` });

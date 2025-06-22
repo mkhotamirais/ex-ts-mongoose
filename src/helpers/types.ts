@@ -22,17 +22,17 @@ export type JwtPayload = {
   role: "user" | "admin";
 };
 
-export type ProductType = {
-  skip?: number;
-  limit?: number;
-  q?: string;
-  category?: string;
-  tags?: string | string[];
-  sort?: string;
+export type ProductQuery = {
+  productskip?: number;
+  productlimit?: number;
+  productq?: string;
+  productcategory?: string;
+  producttags?: string | string[];
+  productsort?: string;
 };
 
 export type PostQuery = {
-  skip?: number;
-  limit?: number;
-  q?: string;
+  postskip?: number;
+  postlimit?: number;
+  postq?: string;
 };
