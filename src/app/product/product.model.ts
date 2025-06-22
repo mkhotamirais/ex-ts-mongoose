@@ -15,7 +15,7 @@ const productSchema = new mongoose.Schema(
   {
     name: { type: String, requried: true, unique: true },
     price: { type: Number, required: true },
-    tags: [{ type: mongoose.Schema.Types.ObjectId, ref: "productTags", required: true }],
+    tags: [{ type: mongoose.Schema.Types.ObjectId, ref: "productTags" }],
     category: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "productCats",

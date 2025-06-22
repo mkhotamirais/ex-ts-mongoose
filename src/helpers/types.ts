@@ -29,6 +29,7 @@ export type ProductQuery = {
   productcategory?: string;
   producttags?: string | string[];
   productsort?: string;
+  productpage?: number;
 };
 
 export type PostQuery = {

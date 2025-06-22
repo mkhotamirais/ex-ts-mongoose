@@ -7,16 +7,17 @@ import { unlinkSync } from "fs";
 
 export const getProducts = async (req: Request, res: Response) => {
   const {
-    productskip = 0,
-    productlimit = 0,
+    productlimit = 8,
     productq = "",
     productcategory = "",
     producttags: rawTags = [],
     productsort = "-createdAt",
+    productpage = 1,
   }: ProductQuery = req.query;
   let criteria: Record<string, any> = {};
 
   const tags = typeof rawTags === "string" ? rawTags.split(",") : Array.isArray(rawTags) ? rawTags : [];
+  const skip = (productpage - 1) * productlimit;
 
   if (productq.length) criteria = { ...criteria, name: { $regex: `${productq}`, $options: "i" } };
   if (productcategory.length) criteria = { ...criteria, category: productcategory };
@@ -25,9 +26,7 @@ export const getProducts = async (req: Request, res: Response) => {
     // const options = { sort: [["group.name", "asc"]] };
     const total = await Products.countDocuments(criteria);
     const data = await Products.find(criteria)
-      // .skip(parseInt(skip))
-      // .limit(parseInt(limit))
-      .skip(productskip)
+      .skip(skip)
       .limit(productlimit)
       .sort(productsort)
       .populate({ path: "category", select: "name" })
@@ -66,7 +65,7 @@ export const createProduct = async (req: AuthRequest, res: Response) => {
     let errors: Record<string, string | null> | null = {
       name: null,
       price: null,
-      tags: null,
+      // tags: null,
       category: null,
       description: null,
     };
@@ -79,7 +78,7 @@ export const createProduct = async (req: AuthRequest, res: Response) => {
       status = 409;
     }
     if (!price || price === "") errors = { ...errors, price: "Price is required!" };
-    if (!tags || tags.length === 0) errors = { ...errors, tags: "Tags is required!" };
+    // if (!tags || tags.length === 0) errors = { ...errors, tags: "Tags is required!" };
     if (!category || category === "") errors = { ...errors, category: "Category is required!" };
     if (!description || description === "") errors = { ...errors, description: "Description is required!" };
 
@@ -99,10 +98,11 @@ export const createProduct = async (req: AuthRequest, res: Response) => {
         req.body.cldId = uploadResult.public_id;
       }
       unlinkSync(req.file.path);
-    } else {
-      errors = { ...errors, image: "Image is required!" };
-      status = 400;
     }
+    // else {
+    //   errors = { ...errors, image: "Image is required!" };
+    //   status = 400;
+    // }
 
     const hasError = Object.values(errors).some((value) => value !== null);
     if (hasError) {
@@ -131,7 +131,7 @@ export const updateProduct = async (req: Request, res: Response) => {
     let errors: Record<string, string | null> | null = {
       name: null,
       price: null,
-      tags: null,
+      // tags: null,
       category: null,
       description: null,
     };
@@ -144,7 +144,7 @@ export const updateProduct = async (req: Request, res: Response) => {
       status = 409;
     }
     if (!price || price === "") errors = { ...errors, price: "Price is required!" };
-    if (!tags || tags.length === 0) errors = { ...errors, tags: "Tags is required!" };
+    // if (!tags || tags.length === 0) errors = { ...errors, tags: "Tags is required!" };
     if (!category || category === "") errors = { ...errors, category: "Category is required!" };
     if (!description || description === "") errors = { ...errors, description: "Description is required!" };
 
@@ -172,6 +172,10 @@ export const updateProduct = async (req: Request, res: Response) => {
       }
       unlinkSync(req.file.path);
     }
+    // else {
+    //   errors = { ...errors, image: "Image is required!" };
+    //   status = 400;
+    // }
 
     req.body.imageUrl = imageUrl;
     req.body.cldId = cldId;
