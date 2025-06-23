@@ -4,4 +4,5 @@ export const allowedOrigins = [
   "https://next-mern-mkhotami.vercel.app",
   "https://mkhotami.com",
   "https://warungota.com",
+  "https://www.warungota.com",
 ];
