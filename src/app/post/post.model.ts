@@ -12,7 +12,7 @@ const postSchema = new mongoose.Schema(
     category: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "postCats",
-      default: null,
+      required: true,
     },
     imageUrl: { type: String },
     cldId: { type: String },

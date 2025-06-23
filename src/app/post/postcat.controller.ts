@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import { Postcats } from "./post.model";
+import { Postcats, Posts } from "./post.model";
 import { errMsg } from "../../helpers/functions";
 
 export const getPostcats = async (req: Request, res: Response) => {
@@ -87,13 +87,27 @@ export const updatePostcat = async (req: Request, res: Response) => {
 export const deletePostcat = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
-    const data = await Postcats.findById(id);
-    if (!data) {
+
+    const category = await Postcats.findById(id);
+    if (!category) {
       res.json(400).json({ error: `Category id ${id} not found!` });
       return;
     }
+
+    if (category.name === "lainnya") {
+      res.status(400).json({ error: `Can't delete ${category.name}!` });
+      return;
+    }
+
+    const defaultCategory = await Postcats.findOne({ name: "lainnya" });
+    if (defaultCategory) {
+      await Postcats.updateMany({ category: category.name }, { $set: { category: defaultCategory.name } });
+    }
+
+    await Posts.updateMany({ category: category._id }, { category: defaultCategory?._id });
+
     await Postcats.findByIdAndDelete(id);
-    res.status(200).json({ message: `Delete ${data.name} success` });
+    res.status(200).json({ message: `Delete ${category.name} success` });
   } catch (error) {
     errMsg(error, res);
   }

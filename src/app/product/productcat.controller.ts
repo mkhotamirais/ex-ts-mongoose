@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import { Productcats } from "./product.model";
+import { Productcats, Products } from "./product.model";
 import { errMsg } from "../../helpers/functions";
 
 export const getProductcats = async (req: Request, res: Response) => {
@@ -87,13 +87,27 @@ export const updateProductcat = async (req: Request, res: Response) => {
 export const deleteProductcat = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
-    const data = await Productcats.findById(id);
-    if (!data) {
+
+    const category = await Productcats.findById(id);
+    if (!category) {
       res.json(400).json({ error: `Category id ${id} not found!` });
       return;
     }
+
+    if (category.name === "lainnya") {
+      res.status(400).json({ error: `Can't delete ${category.name}!` });
+      return;
+    }
+
+    const defaultCategory = await Productcats.findOne({ name: "lainnya" });
+    if (defaultCategory) {
+      await Productcats.updateMany({ category: category.name }, { $set: { category: defaultCategory.name } });
+    }
+
+    await Products.updateMany({ category: category._id }, { category: defaultCategory?._id });
+
     await Productcats.findByIdAndDelete(id);
-    res.status(200).json({ message: `Delete ${data.name} success` });
+    res.status(200).json({ message: `Delete ${category.name} success` });
   } catch (error) {
     errMsg(error, res);
   }

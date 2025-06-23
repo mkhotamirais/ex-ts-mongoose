@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
 import { errMsg } from "../../helpers/functions";
-import { Posts } from "./post.model";
+import { Postcats, Posts } from "./post.model";
 import cloudinary from "../../helpers/cloudinary";
 import { unlinkSync } from "fs";
 import { AuthRequest, PostQuery } from "../../helpers/types";
@@ -48,7 +48,6 @@ export const createPost = async (req: AuthRequest, res: Response) => {
 
     if (!title || title === "") errors = { ...errors, title: "Title is required!" };
     if (!content || content === "") errors = { ...errors, content: "Content is required!" };
-    if (!category || category === "") errors = { ...errors, category: "Category is required!" };
 
     if (await Posts.findOne({ title })) {
       errors = { ...errors, title: "Duplicate title!" };
@@ -62,19 +61,20 @@ export const createPost = async (req: AuthRequest, res: Response) => {
       } else {
         const uploadResult = await cloudinary.uploader.upload(req.file.path, {
           folder: "ex-ts-mongoose-posts",
-          // use_filename: true,
-          // unique_filename: false,
-          // resource_type: "image",
         });
 
         req.body.imageUrl = uploadResult.secure_url;
         req.body.cldId = uploadResult.public_id;
       }
       unlinkSync(req.file.path);
-    } else {
-      errors = { ...errors, image: "Image is required!" };
-      status = 400;
     }
+
+    const defaultCategory = await Postcats.findOne({ name: "lainnya" });
+    if (!defaultCategory) {
+      await Postcats.create({ name: "lainnya" });
+    }
+
+    req.body.category = (await Postcats.findOne({ name: category })) || defaultCategory?._id;
 
     const hasError = Object.values(errors).some((value) => value !== null);
     if (hasError) {
@@ -106,7 +106,6 @@ export const updatePost = async (req: AuthRequest, res: Response) => {
 
     if (!title || title === "") errors = { ...errors, title: "Title is required!" };
     if (!content || content === "") errors = { ...errors, content: "Content is required!" };
-    if (!category || category === "") errors = { ...errors, category: "Category is required!" };
 
     const dup = await Posts.findOne({ title });
     if (dup && dup._id.toString() !== id) {
@@ -126,18 +125,20 @@ export const updatePost = async (req: AuthRequest, res: Response) => {
           await cloudinary.uploader.destroy(cldId);
         }
 
-        const uploadResult = await cloudinary.uploader.upload(req.file.path, {
-          folder: "ex-ts-mongoose-posts",
-          // use_filename: true,
-          // unique_filename: false,
-          // resource_type: "image",
-        });
+        const uploadResult = await cloudinary.uploader.upload(req.file.path, { folder: "ex-ts-mongoose-posts" });
 
         imageUrl = uploadResult.secure_url;
         cldId = uploadResult.public_id;
       }
       unlinkSync(req.file.path);
     }
+
+    const defaultCategory = await Postcats.findOne({ name: "lainnya" });
+    if (!defaultCategory) {
+      await Postcats.create({ name: "lainnya" });
+    }
+
+    req.body.category = req.body.category || defaultCategory?._id;
 
     req.body.imageUrl = imageUrl;
     req.body.cldId = cldId;

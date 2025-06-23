@@ -1,6 +1,6 @@
 import { AuthRequest, ProductQuery } from "../../helpers/types";
 import { Request, Response } from "express";
-import { Carts, Products } from "./product.model";
+import { Carts, Productcats, Products } from "./product.model";
 import cloudinary from "../../helpers/cloudinary";
 import { errMsg } from "../../helpers/functions";
 import { unlinkSync } from "fs";
@@ -29,6 +29,7 @@ export const getProducts = async (req: Request, res: Response) => {
       .skip(skip)
       .limit(productlimit)
       .sort(productsort)
+      .collation({ locale: "en", strength: 2 })
       .populate({ path: "category", select: "name" })
       .populate({ path: "tags", select: ["name"] })
       .populate({ path: "user", select: ["username"] })
@@ -61,14 +62,8 @@ export const getProductById = async (req: Request, res: Response) => {
 
 export const createProduct = async (req: AuthRequest, res: Response) => {
   try {
-    const { name, price, tags, category, description } = req.body;
-    let errors: Record<string, string | null> | null = {
-      name: null,
-      price: null,
-      // tags: null,
-      category: null,
-      description: null,
-    };
+    const { name, price, description } = req.body;
+    let errors: Record<string, string | null> | null = { name: null, price: null, description: null };
     let status = 400;
 
     if (!name || name === "") errors = { ...errors, name: "Name is required!" };
@@ -78,8 +73,6 @@ export const createProduct = async (req: AuthRequest, res: Response) => {
       status = 409;
     }
     if (!price || price === "") errors = { ...errors, price: "Price is required!" };
-    // if (!tags || tags.length === 0) errors = { ...errors, tags: "Tags is required!" };
-    if (!category || category === "") errors = { ...errors, category: "Category is required!" };
     if (!description || description === "") errors = { ...errors, description: "Description is required!" };
 
     if (req.file) {
@@ -87,22 +80,13 @@ export const createProduct = async (req: AuthRequest, res: Response) => {
         errors = { ...errors, image: "Image size must be less than 2MB!" };
         status = 400;
       } else {
-        const uploadResult = await cloudinary.uploader.upload(req.file.path, {
-          folder: "ex-ts-mongoose-products",
-          // use_filename: true,
-          // unique_filename: false,
-          // resource_type: "image",
-        });
+        const uploadResult = await cloudinary.uploader.upload(req.file.path, { folder: "ex-ts-mongoose-products" });
 
         req.body.imageUrl = uploadResult.secure_url;
         req.body.cldId = uploadResult.public_id;
       }
       unlinkSync(req.file.path);
     }
-    // else {
-    //   errors = { ...errors, image: "Image is required!" };
-    //   status = 400;
-    // }
 
     const hasError = Object.values(errors).some((value) => value !== null);
     if (hasError) {
@@ -110,7 +94,13 @@ export const createProduct = async (req: AuthRequest, res: Response) => {
       return;
     }
 
-    req.body.user = req.user?._id;
+    const defaultCategory = await Productcats.findOne({ name: "lainnya" });
+    if (!defaultCategory) {
+      await Productcats.create({ name: "lainnya" });
+    }
+
+    req.body.category = req.body.category ? req.body.category : defaultCategory?._id;
+
     await Products.create(req.body);
     res.status(201).json({ message: `Post ${name} success` });
   } catch (error) {
@@ -127,14 +117,8 @@ export const updateProduct = async (req: Request, res: Response) => {
       return;
     }
 
-    const { name, price, tags, category, description } = req.body;
-    let errors: Record<string, string | null> | null = {
-      name: null,
-      price: null,
-      // tags: null,
-      category: null,
-      description: null,
-    };
+    const { name, price, description } = req.body;
+    let errors: Record<string, string | null> | null = { name: null, price: null, description: null };
     let status = 400;
 
     if (!name || name === "") errors = { ...errors, name: "Name is required!" };
@@ -144,8 +128,6 @@ export const updateProduct = async (req: Request, res: Response) => {
       status = 409;
     }
     if (!price || price === "") errors = { ...errors, price: "Price is required!" };
-    // if (!tags || tags.length === 0) errors = { ...errors, tags: "Tags is required!" };
-    if (!category || category === "") errors = { ...errors, category: "Category is required!" };
     if (!description || description === "") errors = { ...errors, description: "Description is required!" };
 
     let imageUrl = data.imageUrl ? data.imageUrl : null;
@@ -160,23 +142,20 @@ export const updateProduct = async (req: Request, res: Response) => {
           await cloudinary.uploader.destroy(cldId);
         }
 
-        const uploadResult = await cloudinary.uploader.upload(req.file.path, {
-          folder: "ex-ts-mongoose-products",
-          // use_filename: true,
-          // unique_filename: false,
-          // resource_type: "image",
-        });
+        const uploadResult = await cloudinary.uploader.upload(req.file.path, { folder: "ex-ts-mongoose-products" });
 
         imageUrl = uploadResult.secure_url;
         cldId = uploadResult.public_id;
       }
       unlinkSync(req.file.path);
     }
-    // else {
-    //   errors = { ...errors, image: "Image is required!" };
-    //   status = 400;
-    // }
 
+    const defaultCategory = await Productcats.findOne({ name: "lainnya" });
+    if (!defaultCategory) {
+      await Productcats.create({ name: "lainnya" });
+    }
+
+    req.body.category = req.body.category ? req.body.category : defaultCategory?._id;
     req.body.imageUrl = imageUrl;
     req.body.cldId = cldId;
 
