@@ -19,7 +19,8 @@ export const saveCookie = async (res: Response, user: IUser) => {
     secure: isProduction,
     httpOnly: true,
     maxAge: 3 * 24 * 60 * 60 * 1000, // 3 days
-    sameSite: isProduction ? "none" : "lax",
+    sameSite: isProduction ? "lax" : "none",
+    // domain: isProduction ? ".mkhotami.com" : undefined,
     path: "/",
   });
 
@@ -38,7 +39,8 @@ export const removeCookie = async (req: Request, res: Response, user: IUser) => 
     secure: isProduction,
     httpOnly: true,
     maxAge: 3 * 24 * 60 * 60 * 1000, // 3 days
-    sameSite: isProduction ? "none" : "lax",
+    sameSite: isProduction ? "lax" : "none",
+    // domain: isProduction ? ".mkhotami.com" : undefined,
     path: "/",
   });
 
